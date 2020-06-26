@@ -5,6 +5,7 @@ import store from './store'
 // 导入vant
 import vant from 'vant'
 import 'vant/lib/index.css'
+import 'amfe-flexible'
 
 Vue.use(vant)
 
