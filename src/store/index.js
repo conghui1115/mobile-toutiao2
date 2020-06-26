@@ -4,6 +4,7 @@ import * as auth from '@/utils/auth'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
+  // user:{token:'',refresh_token:''}
   state: {
     user: auth.getUser()
   },
