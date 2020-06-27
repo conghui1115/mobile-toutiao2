@@ -17,12 +17,14 @@
 </template>
 
 <script>
+import { login } from '@/api/login'
+import { mapMutations } from 'vuex'
 export default {
   data () {
     return {
       loginForm: {
-        mobile: '',
-        code: ''
+        mobile: '13911111111',
+        code: '246810'
       },
       errorMessage: {
         mobile: '',
@@ -59,10 +61,25 @@ export default {
       this.errorMessage.code = ''
       return true
     },
+    ...mapMutations(['updateUser']),
     // 登录按钮
-    login () {
-      if (this.checkMobile() && this.checkCode()) {
-        console.log('2')
+    async login () {
+      // 同时校验
+      const validateMobile = this.checkMobile()
+      const validateCode = this.checkCode()
+      if (validateMobile && validateCode) {
+        try {
+          const result = await login(this.loginForm)
+          this.updateUser({
+            user: result
+          })
+          const { redirectUrl } = this.$route.query
+          this.$router.push(redirectUrl || '/')
+        } catch (error) {
+          this.$notify({ message: '用户名或者验证码错误', duration: 800 })
+        }
+
+        // 调接口 跳转
       }
     }
   }

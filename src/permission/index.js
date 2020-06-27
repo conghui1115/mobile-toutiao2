@@ -11,7 +11,8 @@ router.beforeEach(function (to, from, next) {
   if (to.path.startsWith('/user') && !store.state.user.token) {
     //   需要拦截请求 让它去登录
   //  next('/login')  如果你想去A  被 拦截了 去了登录, 登录成功应该回到你想去的A
-    next({
+  // router.push跳转，不报重定向的错误
+    router.push({
       path: '/login', // 要跳转的地址
       query: {
         // fullpath 和 path  的区别是 fullPath 会带 ?后面的参数 是一个完整的路径
