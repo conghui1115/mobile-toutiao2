@@ -5,7 +5,7 @@ import '@/permission'
 import store from './store'
 // 导入vant
 import vant, { Lazyload } from 'vant'
-import plugin from '@/api/plugin'
+import plugin from '@/utils/plugin'
 import 'vant/lib/index.css'
 import 'vant/lib/index.less'
 import 'amfe-flexible'

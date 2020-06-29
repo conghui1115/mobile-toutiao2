@@ -24,8 +24,8 @@
                 <span>{{item.comm_count}}评论</span>
                 <!-- filter relTime 相对时间 -->
                 <span>{{item.pubdate | relTime}}</span>
-                <!-- 没有登录的时候，不显示叉号  判断依据是否有token-->
-                <span class="close" v-if='user.token' @click="$emit('showAction')">
+                <!-- 没有登录的时候，不显示叉号  判断依据是否有token 点击事件-->
+                <span class="close" v-if='user.token' @click="$emit('showAction',item.art_id.toString())">
                   <van-icon name="cross"></van-icon>
                 </span>
               </div>
@@ -40,6 +40,7 @@
 <script>
 import { getArticles } from '@/api/articles'
 import { mapState } from 'vuex'
+import eventBus from '@/utils/eventBus'
 export default {
   props: {
     channel_id: {
@@ -63,7 +64,6 @@ export default {
   },
   methods: {
     async onLoad () {
-      console.log('开始加载文章列表数据')
       // 如果你的数据已经加载完毕 你应该把finished 设置为true 表示一切结束了 不再请求
       // 此时强制的判断总条数 如果超过100条 就直接关闭
       // vant-list组件 第一次加载 需要让 list组件出现滚动条 如果没有滚动条 就没有办法 继续往下拉
@@ -127,6 +127,30 @@ export default {
         this.successText = '当前已经是最新了'
       }
     }
+  },
+  // 初始化函数
+  created () {
+    // 监听删除文章事件
+    // 相当于 有多少个实例 就有多少个监听
+    // delAriticle  => 假如有四个实例  4个函数
+    eventBus.$on('delArticle', (artId, channelId) => {
+      // 这个位置 每个组件实例都会触发
+      // 这里要判断一下 传递过来的频道是否等于 自身的频道
+      if (channelId === this.channel_id) {
+        // 说明当前的这个article-list实例 就是我们要去删除数据的实例
+        const index = this.articles.findIndex(item => item.art_id.toString() === artId)
+        // 通过id 查询对应的文章数据所在的下标
+        if (index > -1) {
+          // 因为下标从0开始 所以应该大于-1
+          this.articles.splice(index, 1) // 删除对应下标的数据
+        }
+        // 但是 如果你一直删除 就会将 列表数据都删光 并不会触发 load事件
+        if (this.articles.length === 0) {
+          //  说明你把数据给删光了
+          this.onLoad() // 手动的触发onload事件 给页面加数据
+        }
+      }
+    })
   }
 }
 </script>
