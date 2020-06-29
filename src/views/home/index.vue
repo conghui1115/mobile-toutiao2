@@ -10,7 +10,7 @@
   <!-- tabs下放置图标 编辑频道的图标 -->
   <span class="bar_btn"><van-icon name='wap-nav'></van-icon></span>
   <van-popup :style="{width:'80%'}" v-model="showMoreAction">
-    <more-action @dislike="dislikeArticle"></more-action>
+    <more-action @dislike="dislikeOrReport('dislike')" @report="dislikeOrReport('report',$event)"></more-action>
   </van-popup>
 </div>
 </template>
@@ -19,7 +19,7 @@
 import ArticleList from './components/article-list'
 import { getMyChannels } from '@/api/channels'
 import MoreAction from './components/moreAction'
-import { dislikeArticle } from '@/api/articles'
+import { dislikeArticle, reportArticle } from '@/api/articles'
 import eventBus from '@/utils/eventBus'
 export default {
   data () {
@@ -45,12 +45,14 @@ export default {
       this.articleId = artId
     },
     // 对文章不感兴趣
-    async dislikeArticle () {
+    // operateType 是操作类型 如果是dislike 就是不喜欢 如果是 report 就是 举报
+    async dislikeOrReport (operateType, type) {
       // 调用不感兴趣的文章接口
       try {
-        await dislikeArticle({
+        // 需要根据一个参数来判断 是举报还是不喜欢
+        operateType === 'dislike' ? await dislikeArticle({
           target: this.articleId // 不感兴趣的id
-        })
+        }) : await reportArticle({ target: this.articleId, type }) //  这里的type怎么办 ?????? 通过$event传出来
         // await下方的逻辑 是 resolve(成功)之后 的
         this.$gnotify({
           type: 'success',
