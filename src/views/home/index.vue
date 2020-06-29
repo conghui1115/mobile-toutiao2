@@ -4,30 +4,40 @@
   <van-tabs>
     <van-tab v-for="item in channels" :title="item.name" :key="item.id">
       <!-- 内容列表组件 -->
-      <ArticleList :channel_id='item.id'></ArticleList>
+      <ArticleList :channel_id='item.id' @showAction="openAction"></ArticleList>
     </van-tab>
   </van-tabs>
   <!-- tabs下放置图标 编辑频道的图标 -->
   <span class="bar_btn"><van-icon name='wap-nav'></van-icon></span>
+  <van-popup :style="{width:'80%'}" v-model="showMoreAction">
+    <more-action></more-action>
+  </van-popup>
 </div>
 </template>
 
 <script>
 import ArticleList from './components/article-list'
 import { getMyChannels } from '@/api/channels'
+import MoreAction from './components/moreAction'
 export default {
   data () {
     return {
-      channels: [] // 接收频道数据
+      channels: [], // 接收频道数据
+      showMoreAction: false // 控制反馈组件显示与隐藏
     }
   },
   components: {
-    ArticleList
+    ArticleList,
+    'more-action': MoreAction
   },
   methods: {
     async getMyChannels () {
       const data = await getMyChannels()
       this.channels = data.channels // 更新data 里的channels
+    },
+    // openAction
+    openAction () {
+      this.showMoreAction = true
     }
   },
   created () {

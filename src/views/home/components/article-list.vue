@@ -25,7 +25,7 @@
                 <!-- filter relTime 相对时间 -->
                 <span>{{item.pubdate | relTime}}</span>
                 <!-- 没有登录的时候，不显示叉号  判断依据是否有token-->
-                <span class="close" v-if='user.token'>
+                <span class="close" v-if='user.token' @click="$emit('showAction')">
                   <van-icon name="cross"></van-icon>
                 </span>
               </div>
