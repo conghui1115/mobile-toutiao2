@@ -24,7 +24,8 @@
                 <span>{{item.comm_count}}评论</span>
                 <!-- filter relTime 相对时间 -->
                 <span>{{item.pubdate | relTime}}</span>
-                <span class="close">
+                <!-- 没有登录的时候，不显示叉号  判断依据是否有token-->
+                <span class="close" v-if='user.token'>
                   <van-icon name="cross"></van-icon>
                 </span>
               </div>
@@ -38,6 +39,7 @@
 
 <script>
 import { getArticles } from '@/api/articles'
+import { mapState } from 'vuex'
 export default {
   props: {
     channel_id: {
@@ -45,6 +47,9 @@ export default {
       type: Number,
       default: null
     }
+  },
+  computed: {
+    ...mapState(['user'])
   },
   data () {
     return {
