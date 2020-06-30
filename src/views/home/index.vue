@@ -15,7 +15,7 @@
   </van-popup>
   <!-- 放编辑频道的弹出层 -->
 <van-action-sheet :round="false"  v-model="showChannelEdit" title="编辑频道">
-    <channel-edit @delChannel= 'delChannel' :activeIndex='activeIndex' :channels="channels" @selectChannel='selectChannel'></channel-edit>
+    <channel-edit @addChannel = "addChannel" @delChannel= 'delChannel' :activeIndex='activeIndex' :channels="channels" @selectChannel='selectChannel'></channel-edit>
 </van-action-sheet>
 
 </div>
@@ -24,7 +24,7 @@
 <script>
 import ArticleList from './components/article-list'
 import ChannelEdit from './components/channel-edit'
-import { getMyChannels, delChannel } from '@/api/channels'
+import { getMyChannels, delChannel, addChannel } from '@/api/channels'
 import MoreAction from './components/moreAction'
 import { dislikeArticle, reportArticle } from '@/api/articles'
 import eventBus from '@/utils/eventBus'
@@ -104,6 +104,11 @@ export default {
       } catch (error) {
         this.$gnotify({ message: '删除频道失败' })
       }
+    },
+    // 添加频道
+    async addChannel (channel) {
+      await addChannel(channel)
+      this.channels.push(channel)
     }
   },
   created () {
