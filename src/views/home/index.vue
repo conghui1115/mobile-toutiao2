@@ -15,7 +15,7 @@
   </van-popup>
   <!-- 放编辑频道的弹出层 -->
 <van-action-sheet :round="false"  v-model="showChannelEdit" title="编辑频道">
-    <channel-edit></channel-edit>
+    <channel-edit :channels="channels"></channel-edit>
 </van-action-sheet>
 
 </div>
