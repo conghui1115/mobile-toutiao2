@@ -15,7 +15,7 @@
   </van-popup>
   <!-- 放编辑频道的弹出层 -->
 <van-action-sheet :round="false"  v-model="showChannelEdit" title="编辑频道">
-    <channel-edit :channels="channels"></channel-edit>
+    <channel-edit :activeIndex='activeIndex' :channels="channels" @selectChannel='selectChannel'></channel-edit>
 </van-action-sheet>
 
 </div>
@@ -79,6 +79,12 @@ export default {
           message: '操作失败'
         })
       }
+    },
+    // 切换到对应的频道
+    selectChannel (id) {
+      const index = this.channels.findIndex(item => item.id === id)
+      this.activeIndex = index // 将tabs激活标签切换到对应的标签下
+      this.showChannelEdit = false // 关闭弹层
     }
   },
   created () {
