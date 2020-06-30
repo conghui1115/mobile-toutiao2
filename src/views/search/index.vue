@@ -15,14 +15,15 @@
       <!-- 历史记录存在才显示 -->
       <div class="head" v-if="historyList.length">
         <span >历史记录</span>
-        <van-icon name="delete"></van-icon>
+        <!-- 全部清空历史 -->
+        <van-icon name="delete" @click="delAll"></van-icon>
       </div>
       <van-cell-group>
-        <!-- 需要把这个位置变成动态的 -->
-        <van-cell v-for="(item,index) in historyList" :key="index">
+        <!-- 需要把这个位置变成动态的  事件冒泡-->
+        <van-cell @click="toSearchResult(item)" v-for="(item,index) in historyList" :key="index">
           <a class="word_btn">{{item}}</a>
-          <!-- 注册点击叉号 -->
-          <van-icon @click="delHistory(index)" class="close_btn" slot="right-icon" name="cross" />
+          <!-- 注册点击叉号 冒泡了 两个父子级都有点击事件-->
+          <van-icon @click.stop="delHistory(index)" class="close_btn" slot="right-icon" name="cross" />
         </van-cell>
       </van-cell-group>
     </div>
@@ -46,6 +47,27 @@ export default {
       this.historyList.splice(index, 1) // 直接删除对应的历史记录数据
       // 将数据同步到 本地缓存
       localStorage.setItem(key, JSON.stringify(this.historyList))
+    },
+    // 跳转搜索结果页
+    toSearchResult (text) {
+      // this.$router 路由实例对象
+      // this.$route 路由页面信息对象 当前地址信息参数 params  query 参数
+      // this.$router.push('/search/result?q=' + text)
+      this.$router.push({ path: '/search/result', query: { q: text } })
+    },
+    // 清空历史记录
+    async  delAll () {
+      try {
+        await this.$dialog.confirm({
+          title: '提示',
+          message: '您确定删除所有历史记录吗'
+        })
+        this.historyList = ''
+        // 本地删除历史记录
+        localStorage.setItem(key, '[]')
+      } catch (error) {
+        // 失败不需要清理
+      }
     }
   },
   created () {
