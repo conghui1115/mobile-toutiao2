@@ -15,7 +15,7 @@
   </van-popup>
   <!-- 放编辑频道的弹出层 -->
 <van-action-sheet :round="false"  v-model="showChannelEdit" title="编辑频道">
-    <channel-edit :activeIndex='activeIndex' :channels="channels" @selectChannel='selectChannel'></channel-edit>
+    <channel-edit @delChannel= 'delChannel' :activeIndex='activeIndex' :channels="channels" @selectChannel='selectChannel'></channel-edit>
 </van-action-sheet>
 
 </div>
@@ -24,7 +24,7 @@
 <script>
 import ArticleList from './components/article-list'
 import ChannelEdit from './components/channel-edit'
-import { getMyChannels } from '@/api/channels'
+import { getMyChannels, delChannel } from '@/api/channels'
 import MoreAction from './components/moreAction'
 import { dislikeArticle, reportArticle } from '@/api/articles'
 import eventBus from '@/utils/eventBus'
@@ -85,6 +85,25 @@ export default {
       const index = this.channels.findIndex(item => item.id === id)
       this.activeIndex = index // 将tabs激活标签切换到对应的标签下
       this.showChannelEdit = false // 关闭弹层
+    },
+    // 删除频道的方法
+    async delChannel (id) {
+      // 此时应该先调用api
+      try {
+        await delChannel(id) // 调用api方法  此时只是删除了 缓存中的数据
+        // 如果此时成功的resolve了 我们 应该去移除 当前data中的数据
+        const index = this.channels.findIndex(item => item.id === id) // 找到对应的索引
+        // 找到对应的索引之后
+        // 要根据当前删除的索引 和 当前激活的索引的 关系 来 决定 当前激活索引是否需要改变
+        if (index <= this.activeIndex) {
+          //  如果你删除的索引 是在当前激活索引之前的 或者等于当前激活索引的
+          // 此时就要把激活索引 给往前挪一位
+          this.activeIndex = this.activeIndex - 1
+        }
+        this.channels.splice(index, 1) // 删除对应的索引频道
+      } catch (error) {
+        this.$gnotify({ message: '删除频道失败' })
+      }
     }
   },
   created () {
