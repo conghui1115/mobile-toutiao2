@@ -19,6 +19,8 @@
         &nbsp;&nbsp;&nbsp;&nbsp;
         <van-button round size="small" plain icon="delete" class="active:article.attitude === 0">不喜欢</van-button>
       </div>
+      <!-- 评论组件 -->
+      <Comment />
     </div>
    <!-- 放置一个遮罩层 -->
     <van-overlay :show="loading" >
@@ -31,6 +33,7 @@
 </template>
 
 <script>
+import Comment from './components/comment'
 import { getArticleInfo } from '@/api/articles'
 import { followUser, unfollowUser } from '@/api/user'
 export default {
@@ -39,6 +42,9 @@ export default {
       article: {}, // 接收文章数据
       loading: false
     }
+  },
+  components: {
+    Comment
   },
   methods: {
     async getArticleInfo () {
