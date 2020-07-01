@@ -6,8 +6,8 @@
     <van-search @search="onSearch" v-model.trim="q" placeholder="请输入搜索关键词" shape="round" />
     <!-- 联想 -->
     <van-cell-group class="suggest-box" v-if="q">
-      <van-cell icon="search">
-        <span>j</span>ava
+      <van-cell @click="onSearch" icon="search" v-for="(item,index) in suggestList" :key="index">
+        {{item}}
       </van-cell>
     </van-cell-group>
     <!-- 历史记录 -->
@@ -31,13 +31,15 @@
 </template>
 
 <script>
+import { getSuggestion } from '@/api/articles'
 const key = 'hm-94-toutiao-history'// 历史记录本地缓存
 export default {
   name: 'search',
   data () {
     return {
       q: '',
-      historyList: []
+      historyList: [],
+      suggestList: [] // 联想的搜索建议
     }
   },
   methods: {
@@ -85,6 +87,44 @@ export default {
   created () {
     // ['黑马','马云','猫咪'] historyList是一个数组
     this.historyList = JSON.parse(localStorage.getItem(key) || '[]')
+  },
+  // 搜索联想词
+  watch: {
+    // 防抖
+    // q () {
+    //   // 我们要在这个位置 去请求接口
+    //   clearTimeout(this.timer) // 先清除掉定时器
+    //   // 防抖函数
+    //   this.timer = setTimeout(async () => {
+    //     // 需要判断 当清空的时候 不能发送请求 但是要把联想的建议清空
+    //     if (!this.q) {
+    //       // 如果这时 搜索关键字没有内容
+    //       this.suggestList = []
+    //       // 不能再继续了
+    //       return
+    //     }
+    //     // 此函数中需要 请求 联想搜索的建议
+    //     // 联想搜索的建议 需要 放置在一个变量中
+    //     const data = await getSuggestion({ q: this.q })
+    //     this.suggestList = data.options // 将返回的词条的options赋值给 当前的联想建议
+    //   }, 300)
+    // }
+    // 节流做法更好一些
+    q () {
+      // 300毫秒请求一次
+      if (!this.timer) {
+        this.timer = setTimeout(async () => {
+          this.time = null
+          // 需要判断 清空时不需要发送请求
+          if (!this.q) {
+            this.suggestList = []
+            return
+          }
+          const data = await getSuggestion({ q: this.q })
+          this.suggestList = data.options
+        }, 300)
+      }
+    }
   }
 }
 </script>
