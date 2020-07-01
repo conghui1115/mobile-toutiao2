@@ -2,8 +2,8 @@
   <div class="container">
     <!-- 搜索组件一级路由   返回上一个页面-->
     <van-nav-bar left-arrow title="搜索中心" @click-left="$router.back()"></van-nav-bar>
-    <!-- 导航 -->
-    <van-search v-model.trim="q" placeholder="请输入搜索关键词" shape="round" />
+    <!-- 搜索框  @search方法 -->
+    <van-search @search="onSearch" v-model.trim="q" placeholder="请输入搜索关键词" shape="round" />
     <!-- 联想 -->
     <van-cell-group class="suggest-box" v-if="q">
       <van-cell icon="search">
@@ -68,10 +68,22 @@ export default {
       } catch (error) {
         // 失败不需要清理
       }
+    },
+    // 搜索结果
+    onSearch () {
+      // 搜索内容不为空
+      if (!this.q) return
+      // 跳转之前，把搜索结果添加到历史记录里
+      this.historyList.push(this.q)
+      // 历史搜索去重 new set()  Arrray.from 是伪数组转为数组
+      this.historyList = Array.from(new Set(this.historyList))
+      // 设置本地缓存 localStorage/sessionStorage默认只能存储字符串
+      localStorage.setItem(key, JSON.stringify(this.historyList))
+      this.$router.push({ path: '/search/result', query: { q: this.q } })
     }
   },
   created () {
-    // ['黑马','马云','猫咪']
+    // ['黑马','马云','猫咪'] historyList是一个数组
     this.historyList = JSON.parse(localStorage.getItem(key) || '[]')
   }
 }
