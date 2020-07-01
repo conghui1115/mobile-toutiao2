@@ -6,7 +6,7 @@
       <van-list v-model="upLoading" :finished="finished" @load="onLoad" finished-text="我是有底线的">
         <!-- 循环内容 -->
         <van-cell-group>
-          <van-cell v-for="item in articles" :key="item.art_id.toString()">
+          <van-cell :to="`/article?artId=${item.art_id.toString()}`" v-for="item in articles" :key="item.art_id.toString()">
             <div class="article_item">
               <h3 class="van-ellipsis">{{item.title}}</h3>
               <div class="img_box" v-if="item.cover.type===3">
@@ -25,7 +25,7 @@
                 <!-- filter relTime 相对时间 -->
                 <span>{{item.pubdate | relTime}}</span>
                 <!-- 没有登录的时候，不显示叉号  判断依据是否有token 点击事件-->
-                <span class="close" v-if='user.token' @click="$emit('showAction',item.art_id.toString())">
+                <span class="close" v-if='user.token' @click.stop="$emit('showAction',item.art_id.toString())">
                   <van-icon name="cross"></van-icon>
                 </span>
               </div>
