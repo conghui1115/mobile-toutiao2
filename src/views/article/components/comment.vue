@@ -1,6 +1,6 @@
 <template>
   <div class="comment">
-    <van-list @load="onLoad" v-model="loading" :finished="finished" finished-text="没有更多了">
+    <van-list @load="onLoad"  v-model="loading" :finished="finished" finished-text="没有更多了">
       <div class="item van-hairline--bottom van-hairline--top" v-for="item in comments" :key="item.com_id.toString()">
         <van-image
           round
@@ -20,7 +20,7 @@
           <p>{{item.content}}</p>
           <p>
             <span class="time">{{item.pubdate| relTime}}</span>&nbsp;
-            <van-tag plain @click="showReply=true">{{item.reply_count}}回复</van-tag>
+            <van-tag plain @click="openReply(item.com_id.toString())">{{item.reply_count}}回复</van-tag>
           </p>
         </div>
       </div>
@@ -35,13 +35,13 @@
     <!-- 放置评论的评论 弹出面板 -->
  <!-- 回复 -->
     <van-action-sheet v-model="showReply" :round="false" class="reply_dialog" title="回复评论">
-      <van-list v-model="reply.loading" :finished="reply.finished" finished-text="没有更多了">
-        <div class="item van-hairline--bottom van-hairline--top" v-for="index in 8" :key="index">
-          <van-image round width="1rem" height="1rem" fit="fill" src="https://img.yzcdn.cn/vant/cat.jpeg" />
+      <van-list :immediate-check="false" v-model="reply.loading" :finished="reply.finished" finished-text="没有更多了">
+        <div class="item van-hairline--bottom van-hairline--top" v-for="item in reply.list" :key="item.com_id.toString()">
+          <van-image round width="1rem" height="1rem" fit="fill" :src="item.aut_photo" />
           <div class="info">
-            <p><span class="name">一阵清风</span></p>
-            <p>评论的内容，。。。。</p>
-            <p><span class="time">两天内</span></p>
+            <p><span class="name">{{item.aut_name}}</span></p>
+            <p>{{item.aut_content}}</p>
+            <p><span class="time">{{item.pubdate | relTime}}</span></p>
           </div>
         </div>
       </van-list>
@@ -69,11 +69,15 @@ export default {
       showReply: false,
       reply: {
         loading: false,
-        finished: false
+        finished: false,
+        offset: null,
+        list: [], // 评论的评论
+        commentId: null // 存放当前点击的评论id
       }
     }
   },
   methods: {
+    // 文章回复评论
     async  onLoad () {
       const { artId } = this.$route.query
       const data = await Article.getComments({
@@ -85,7 +89,33 @@ export default {
       this.loading = false
       this.finished = data.end_id === data.last_id
       if (!this.finished) {
-        this.offset = this.data.last_id
+        this.offset = data.last_id
+      }
+    },
+    // 点击回复打开弹出层，把之前弹出层的内容置空，重新拉取一次数据
+    openReply (commentId) {
+      // 打开弹出层
+      this.showReply = true
+      this.reply.commentId = commentId // 得到当前文章回复id,方法传入的
+      // 弹出窗口之前，把之前的评论清空
+      this.reply.list = []
+      this.reply.offset = null
+      this.reply.finished = false
+      this.reply.loading = true // 主动打开加载状态 之前关闭了
+      this.getReply()
+    },
+    // 获取评论的评论
+    async getReply () {
+      const data = await Article.getComments({
+        type: 'c',
+        source: this.reply.commentId,
+        offset: this.reply.offset
+      })
+      this.reply.list.push(...data.results)
+      this.reply.loading = false
+      this.reply.finished = data.last_id === data.end_id
+      if (!this.reply.finished) {
+        this.reply.offset = data.last_id
       }
     }
   }

@@ -106,12 +106,13 @@ export default {
       color: red;
     }
   }
-  .author {
+  /deep/ .author {
     padding: 10px 0;
     display: flex;
     position:sticky;
     background-color: #fff;
     top:46px;
+    z-index:2;
     .text {
       flex: 1;
       padding-left: 10px;
