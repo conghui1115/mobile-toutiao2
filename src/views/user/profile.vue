@@ -1,8 +1,8 @@
 <template>
     <div class="container">
-    <van-nav-bar left-arrow @click-left="$router.back()" title="编辑资料" right-text="保存" ></van-nav-bar>
+    <van-nav-bar @click-right="saveUser" left-arrow @click-left="$router.back()" title="编辑资料" right-text="保存" ></van-nav-bar>
     <van-cell-group>
-      <van-cell is-link title="头像"  center>
+      <van-cell is-link title="头像"  center >
         <van-image
           slot="default"
           width="1.5rem"
@@ -10,6 +10,7 @@
           fit="cover"
           round
           :src="user.photo"
+           @click="showPhoto=true"
         />
       </van-cell>
       <van-cell is-link title="名称" @click="showName= true" :value="user.name" />
@@ -22,7 +23,7 @@
       <!-- 内容 -->
       <!-- 1 本地相册选择图片 -->
       <!-- 2 拍照 -->
-       <van-cell is-link title="本地相册选择图片"></van-cell>
+       <van-cell is-link title="本地相册选择图片" @click="openFileDialog"></van-cell>
        <van-cell is-link title="拍照"></van-cell>
     </van-popup>
     <!-- 放置昵称的弹层 -->
@@ -49,12 +50,14 @@
           @cancel="showBirthDay=false"
          />
     </van-popup>
+    <!-- 文件选择控件 -->
+    <input ref="myFile" @change="upload" type="file" style="display:none">
   </div>
 </template>
 
 <script>
 import dayjs from 'dayjs'
-import { getUserProfile } from '@/api/user'
+import { getUserProfile, updatePhoto, saveUserInfo } from '@/api/user'
 export default {
   data () {
     return {
@@ -102,7 +105,7 @@ export default {
     showDate () {
       this.showBirthDay = true // 显示生日弹层
       // 将当前的生日 设置到 选择日期的当前时间  将生日字符串 转化成Date对象 绑定到 日期组件上
-      this.currentDate = this.user.birthday
+      this.currentDate = new Date(this.user.birthday)
     },
     // 确定生日
     confirmDate () {
@@ -110,6 +113,27 @@ export default {
       // 拿到选择的日期  设置给生日  => date  => 字符串
       this.user.birthday = dayjs(this.currentDate).format('YYYY-MM-DD') // 将date类型转化成字符串
       this.showBirthDay = false // 关闭弹层
+    },
+    openFileDialog () {
+      this.$refs.myFile.click() // 触发input:file的click事件 触发事件就会弹出文件对话框
+    },
+    // 修改头像
+    async  upload (params) {
+      //  当选择 完头像之后 就可以修改头像
+      const data = new FormData()
+      data.append('photo', this.$refs.myFile.files[0]) // 第二个参数 是 选择的图片文件 选择图片文件
+      const result = await updatePhoto(data) // 上传头像
+      this.user.photo = result.photo // 把成功上传的头像地址设置给当前data中的数据
+      this.showPhoto = false // 关闭头像弹层
+    },
+    // 保存用户信息
+    async saveUser () {
+      try {
+        await saveUserInfo(this.user) // 传入user对象
+        this.$gnotify({ type: 'success', message: '保存成功' })
+      } catch (error) {
+        this.$gnotify({ message: '保存失败' })
+      }
     }
   },
   created () {
