@@ -61,3 +61,12 @@ export function getComments (params) {
     params // type(是文章的的回复还是回复的回复)  source(来源id)  offset(偏移量 分页依据) 查第二页的数据 传第一页的最后一个id 查第三页的数据  传第二页最后一个id ....
   })
 }
+
+// 评论文章或者评论别人的评论  支持两种场景 文章评论 评论的评论
+export function commentOrReply (data) {
+  return request({
+    method: 'post',
+    url: '/comments',
+    data
+  })
+}
