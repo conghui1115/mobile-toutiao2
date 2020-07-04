@@ -2,7 +2,7 @@
  <div class="container">
     <div class="user-profile">
       <div class="info">
-        <van-image round src="https://img.yzcdn.cn/vant/cat.jpeg" />
+        <van-image round :src="userInfo.photo" />
         <h3 class="name">
           {{userInfo.name}}
           <br />
@@ -55,12 +55,13 @@ export default {
     }
   },
   methods: {
-    // 获取用户自己的信息
+    ...mapMutations(['delUser', 'updatePhoto']),
+    // 获取用户自己的信息，获取用户资料时更新头像
     async getUserInfo () {
       this.userInfo = await getUserInfo()
+      this.updatePhoto({ photo: this.userInfo.photo })
     },
     // 退出登录 到登录页  清除token state只能在mutations里改变
-    ...mapMutations(['delUser']),
     async lgout () {
       try {
         await this.$dialog.confirm({

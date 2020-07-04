@@ -1,16 +1,19 @@
 <template>
    <div class="container">
     <van-nav-bar fixed left-arrow @click-left="$router.back()" title="小智同学"></van-nav-bar>
+    <!-- 小智 -->
     <div class="chat-list">
       <div class="chat-item left">
-        <van-image fit="cover" round src="https://img.yzcdn.cn/vant/cat.jpeg" />
+        <van-image fit="cover" round :src="XZImg" />
         <div class="chat-pao">ewqewq</div>
       </div>
+      <!-- 我 -->
       <div class="chat-item right">
         <div class="chat-pao">ewqewq</div>
-        <van-image  fit="cover" round src="https://img.yzcdn.cn/vant/cat.jpeg" />
+        <van-image  fit="cover" round :src="photo" />
       </div>
     </div>
+    <!-- 对话板 -->
     <div class="reply-container van-hairline--top">
       <van-field v-model="value" placeholder="说点什么...">
         <van-loading v-if="loading" slot="button" type="spinner" size="16px"></van-loading>
@@ -21,12 +24,18 @@
 </template>
 
 <script>
+import XZImg from '@/assets/photo.jpeg'
+import { mapState } from 'vuex'
 export default {
   data () {
     return {
       value: '',
-      loading: false
+      loading: false,
+      XZImg
     }
+  },
+  computed: {
+    ...mapState(['photo']) // 映射vuex中的公共变量
   }
 }
 </script>

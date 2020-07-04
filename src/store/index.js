@@ -6,7 +6,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   // user:{token:'',refresh_token:''}
   state: {
-    user: auth.getUser()
+    user: auth.getUser(),
+    photo: null// 用户头像
   },
   mutations: {
     // 修改token
@@ -20,6 +21,10 @@ export default new Vuex.Store({
     delUser (state) {
       state.user = {}
       auth.delUser()
+    },
+    // 更新头像
+    updatePhoto (state, payload) {
+      state.photo = payload.photo // 在载荷中传入photo
     }
   },
   actions: {
