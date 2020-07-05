@@ -22,7 +22,10 @@ const routes = [
     children: [
       {
         path: '',
-        component: home
+        component: home,
+        meta: {
+          isAlive: true
+        }
       }, {
         path: '/question',
         component: question

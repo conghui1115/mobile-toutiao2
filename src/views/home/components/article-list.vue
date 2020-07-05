@@ -1,5 +1,5 @@
 <template>
-  <div class="scroll-wrapper">
+  <div class="scroll-wrapper" @scroll='remember' ref="myScroll">
     <!-- 文章列表  -->
     <!-- van-list 可以帮助我们实现上拉加载 需要一些变量 -->
     <van-pull-refresh v-model="isRefresh" @refresh="onRefresh" :success-text="successText">
@@ -59,7 +59,8 @@ export default {
       articles: [],
       isRefresh: false,
       successText: '',
-      timestamp: null
+      timestamp: null,
+      scrollTop: 0// 记录滚动位置
     }
   },
   methods: {
@@ -126,6 +127,24 @@ export default {
         // 如果换不来数据
         this.successText = '当前已经是最新了'
       }
+    },
+    // 这是记录滚动事件
+    remember (event) {
+      // 函数防抖 在一段时间之内 只执行最后一次事件
+      clearTimeout(this.timer)
+      this.timer = setTimeout(() => {
+        //  记录 当前滚动的位置
+        this.scrollTop = event.target.scrollTop // 记录滚动的位置
+      }, 500)
+    },
+    activated () {
+      console.log('唤醒')
+      // 可以在激活函数中 去判断当前是否 scrollTop发生了变化
+      if (this.$refs.myScroll && this.scrollTop) {
+      //  判断滚动位置是否大于0
+      // 将div滚动回原来的位置
+        this.$refs.myScroll.scrollTop = this.scrollTop // 将记录的位置 滚动到 对应位置
+      }
     }
   },
   // 初始化函数
@@ -149,6 +168,25 @@ export default {
           //  说明你把数据给删光了
           this.onLoad() // 手动的触发onload事件 给页面加数据
         }
+      }
+    })
+    eventBus.$on('changeTab', (id) => {
+      // 传入的id  就是当前被激活的id
+      // 要判断 当前的文章列表  接收的id  是否等于此id 如果相等 表示 该文章列表实例 就是需要去滚动的 实例
+      // 一个tab页 下一个实例
+      if (id === this.channel_id) {
+        // 为什么这里 没有实现效果 因为 tab页切换事件 执行之后 article-list组件渲染 是异步的 没有办法 立刻得出渲染结果
+        // 如果相等 表示 我要滚动此滚动条
+        // 此时得不到 this.$refs.myScroll
+        // 怎么才能保证  执行 该代码时  已经完成了上一次的渲染呢
+        // this.$nextTick()  因为 vue是异步渲染, 如果想要等到上一次的结果 渲染完成  可以 在 this.$nextTick中处理
+        this.$nextTick(() => {
+          // 此时可以保证 之前的上一次的异步渲染已经完成
+          if (this.scrollTop && this.$refs.myScroll) {
+          // 当滚动距离不为0 并且 滚动元素 存在的情况下 才去滚动
+            this.$refs.myScroll.scrollTop = this.scrollTop // 滚动到固定的位置
+          }
+        })
       }
     })
   }

@@ -2,7 +2,10 @@
 <div class="container">
   <van-nav-bar title="头条" right-text="搜索" fixed @click-right="$router.push('/search')" v-if='showNavBar'></van-nav-bar>
   <div class="my-wrapper" :class="{noTop:!showNavBar}">
+    <keep-alive>
+       <!-- 用keep-alive包裹路由容器 -->
     <router-view></router-view>
+    </keep-alive>
   </div>
   <!-- 标签页 -->
   <van-tabbar route>

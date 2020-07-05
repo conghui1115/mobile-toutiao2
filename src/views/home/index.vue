@@ -1,7 +1,7 @@
 <template>
 <div class="container">
   <!-- 标签栏 -->
-  <van-tabs v-model="activeIndex">
+  <van-tabs v-model="activeIndex" swipeable @change="changeTab">
     <van-tab v-for="item in channels" :title="item.name" :key="item.id" >
       <!-- 内容列表组件 -->
       <ArticleList :channel_id='item.id' @showAction="openAction"></ArticleList>
@@ -44,6 +44,12 @@ export default {
     'channel-edit': ChannelEdit
   },
   methods: {
+    // 切换页签事件
+    changeTab () {
+      // 切换页签时 我要广播一个消息  让对应的页签中的文章列表  去滚动 滚动条
+      // 广播中传出一个参数 传当前谁被激活了 传出当前激活索引的 id
+      eventBus.$emit('changeTab', this.channels[this.activeIndex].id)
+    },
     async getMyChannels () {
       const data = await getMyChannels()
       this.channels = data.channels // 更新data 里的channels
